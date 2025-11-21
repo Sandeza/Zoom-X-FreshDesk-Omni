@@ -1,0 +1,137 @@
+{
+  "platform-version": "3.0",
+  "modules": {
+    "support_ticket": {},
+    "phone": {},
+    "common": {
+      "location": {
+        "cti_global_sidebar": {
+          "url": "index.html",
+          "icon": "styles/images/iconZoom.png"
+        },
+        "left_nav_cti": {
+          "url": "index.html",
+          "icon": "styles/images/iconZoom.png"
+        }
+      },
+      "events": {
+        "onAppInstall": {
+          "handler": "onAppInstallHandler"
+        },
+        "onAppUninstall": {
+          "handler": "onAppUninstallHandler"
+        }
+      },
+      "requests": {
+        "saveCallNotes": {},
+        "get_contact_filter": {},
+        "get_contact_list_crm": {},
+        "get_contact_list": {},
+        "get_crmcontact_list": {},
+        "add_contact": {},
+        "search_user_by_phone": {},
+        "list_user_tickets": {},
+        "create_ticket": {},
+        "add_ticket_note": {},
+        "list_conversations_by_contact": {},
+        "create_conversation": {},
+        "search_crm_contact": {},
+        "create_user": {},
+        "freshchat_userid": {},
+        "create_contact": {},
+        "post_conversation_message": {},
+        "get_crm_contact_by_id": {},
+        "onAddPrivateNotesInFreshchat": {},
+        "callEndedNotifiFchat": {},
+        "onUpdateRecordingsInFChatConvo": {},
+        "missedCallCreateConvoFchat": {},
+        "callCreateConvoFchat": {},
+        "OnGetFreshChatChannel": {},
+        "OnCreateFreshChatChannel": {},
+        "onUpdateConversationInFchat": {},
+        "listAgents": {},
+        "getFreshchatAccountDetails": {},
+        "goToOnappinstallApi": {}
+      },
+      "functions": {
+        "saveCallNotes": {
+          "timeout": 10
+        },
+        "missedCallCreateConvoFchat": {
+          "timeout": 10
+        },
+        "listAgents": {
+          "timeout": 10
+        },
+        "updateCallEnd": {
+          "timeout": 10
+        },
+        "addCallLog": {
+          "timeout": 10
+        },
+        "fetchCallLogs": {
+          "timeout": 10
+        },
+        "addNoteToTicket": {
+          "timeout": 10
+        },
+        "createTicketForCaller": {
+          "timeout": 10
+        },
+        "addContact": {
+          "timeout": 10
+        },
+        "fetchTicketsByPhone": {
+          "timeout": 10
+        },
+        "updateVoiceMailRecording": {},
+        "updateCallAgentPicked": {
+          "timeout": 10
+        },
+        "updateRecordingsInFreshChatConvo": {
+          "timeout": 10
+        },
+        "updateConversationInFreshchat": {
+          "timeout": 10
+        },
+        "getContactList": {
+          "timeout": 10
+        },
+        "createConversationFreshchat": {
+          "timeout": 10
+        },
+        "getFreshchatUserIdFromCrm": {},
+        "findOrCreateFullCrmContactByPhone": {
+          "timeout": 10
+        },
+        "findOrCreateFreshdeskContact": {
+          "timeout": 10
+        },
+        "onAddPrivateNotesInFreshchat": {
+          "timeout": 10
+        },
+        "getAccountId": {
+          "timeout": 10
+        },
+        "voiceMailInFChat": {
+          "timeout": 10
+        },
+        "updateCallEndvoice": {
+          "timeout": 10
+        }
+      }
+    },
+    "chat_conversation": {
+      "location": {
+        "conversation_user_info": {
+          "url": "index.html",
+          "icon": "styles/images/iconZoom.png"
+        }
+      }
+    }
+  },
+  "engines": {
+    "node": "18.20.8",
+    "fdk": "9.7.1"
+  }
+}

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Auto-Assign Installation</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f8f9fa;
+        margin: 20px;
+      }
+      .btn-group {
+  margin-bottom: 22px;
+  display: flex;
+  gap: 10px;
+}
+
+button.module-btn {
+  padding: 10px 22px;
+  border: none;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.22s, color 0.16s, box-shadow 0.22s;
+  font-size: 1.13rem;
+  background: #133558;
+  color: #dbeafe;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+}
+
+button.module-btn.active {
+  background: #2196f3 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 16px 0 rgba(33,150,243,0.14);
+  outline: 2px solid #2196f3;
+  outline-offset: 1px;
+}
+
+button.module-btn:not(.active):hover {
+  background: #1e293b;
+  color: #bbeeff;
+}
+
+      .fw-widget-wrapper {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+        padding: 28px 32px 28px 32px;
+        max-width: 520px;
+        margin: auto;
+      }
+      .fw-form {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+      }
+      fw-input {
+        margin-bottom: 0;
+      }
+      fw-input div[slot="hint-text"] {
+        color: #7b8ca5;
+        font-size: 0.93rem;
+        margin: 5px 0 0 2px;
+        font-style: italic;
+        display: block;
+        line-height: 1.25;
+        letter-spacing: 0.02em;
+      }
+      fw-input a, fw-input a:visited {
+        font-size: 0.93em;
+        color: #1877d5;
+        word-break: break-all;
+        display: inline-block;
+        margin-top: 2px;
+      }
+      .fw-section-label {
+        margin: 16px 0 6px 0;
+        font-size: 1.1em;
+        font-weight: bold;
+        color: #2d3436;
+        letter-spacing: 0;
+      }
+      .error-text {
+  font-size: 12px;
+  color: #d32f2f;
+  margin-top: 4px;
+}
+    </style>
+    <script defer src="{{{appclient}}}"></script>
+  </head>
+  <body>
+    <div class="btn-group">
+      <button id="btn-freshdesk" class="module-btn active" type="button" onclick="showModule('freshdesk')">Freshdesk Omni</button>
+      <button id="btn-freshsales" class="module-btn" type="button" onclick="showModule('freshsales')">Freshsales Suite</button>
+    </div>
+   
+
+    <!-- Freshdesk Omni module -->
+    <div id="freshdeskModule" class="fw-widget-wrapper" style="display: block;">
+       <div class="error-text" id="emailError"></div>
+      <form class="fw-form" id="iparams-form-freshdesk">
+        
+        <fw-input
+          id="email_id"
+          label="User Email Id"
+          required
+          placeholder="Enter your Email Id"
+          
+        ></fw-input>
+
+        <div class="fw-section-label">Freshdesk Settings</div>
+        <fw-input
+          id="d_domain"
+          label="Freshdesk Domain"
+         
+          description="Find your FreshDesk Domain Name From View Profile>Profile Settings>View API Key"
+          placeholder="Find your FreshDesk Domain Name From View Profile>Profile Settings>View API Key"
+        >
+          <div slot="hint-text">https://abc.freshdesk.com</div>
+        </fw-input>
+        <fw-tooltip content="Find your Freshdesk API Key From View Profile>Profile Settings>View API Key">
+        <fw-input
+          id="d_api_key"
+          label="Freshdesk API Key"
+          type="password"
+          
+          description="Find your Freshdesk API Key From View Profile>Profile Settings>View API Key"
+          placeholder="Find your Freshdesk API Key From View Profile>Profile Settings>View API Key"
+        >
+        </fw-tooltip>
+          <!-- <div slot="hint-text">
+            <a id="apiKeyLinkfreshdeskapi" target="_blank" rel="noopener noreferrer">Find My Freshdesk API Key</a>
+          </div> -->
+        </fw-input>
+
+        <div class="fw-section-label">Freshchat Settings</div>
+        <fw-input
+          id="c_domain"
+          label="Freshchat Domain"
+          required
+          placeholder="Find your Freshworks Domain Name From Admin Settings > API Settings"
+        >
+          <div slot="hint-text">https://abc.freshchat.com</div>
+        </fw-input>
+        <fw-input
+          id="c_api_key"
+          label="Freshchat API Key"
+          type="password"
+          required
+          placeholder="Find your Freshworks API Key From Admin Settings > API Settings"
+        >
+          <!-- <div slot="hint-text">
+            <a id="apiKeyLinkfreshchatapi" target="_blank" rel="noopener noreferrer">Find My Freshchat API Key</a>
+          </div> -->
+        </fw-input>
+
+        <div class="fw-section-label">Freshworks CRM Settings</div>
+        <fw-input
+          id="crm_domain"
+          label="Freshworks_crm Domain"
+          required
+          placeholder="Find your Freshworks Domain Name From Admin Settings > API Settings"
+        >
+          <div slot="hint-text">https://abc.myfreshworks.com</div>
+        </fw-input>
+        <fw-input
+          id="crm_api_key"
+          label="Freshwork_crm API Key"
+          type="password"
+          required
+          placeholder="Find your Freshworks API Key From Admin Settings > API Settings"
+        >
+          <!-- <div slot="hint-text">
+            <a id="apiKeyLinkcrmapi" target="_blank" rel="noopener noreferrer">Find My Crm API Key</a>
+          </div> -->
+        </fw-input>
+      </form>
+    </div>
+
+    <!-- Freshsales Suite module -->
+    <div id="freshsalesModule" class="fw-widget-wrapper" style="display: none;">
+      <div class="error-text" id="emailError_copy"></div>
+      <form class="fw-form" id="iparams-form-freshsales">
+        
+         <fw-input
+          id="email_id_copy"
+          label="User Email Id"
+          required
+          placeholder="Enter your Email Id"
+        ></fw-input>
+        <div class="fw-section-label">Freshchat Settings</div>
+        <fw-input
+          id="c_domain_copy"
+          label="Freshchat Domain"
+          required
+          placeholder="Find your Freshworks Domain Name From Admin Settings > API Settings"
+        >
+          <div slot="hint-text">https://abc.freshchat.com</div>
+        </fw-input>
+        <fw-input
+          id="c_api_key_copy"
+          label="Freshchat API Key"
+          type="password"
+          required
+          placeholder="Find your Freshworks API Key From Admin Settings > API Settings"
+        >
+          <div slot="hint-text">
+            <a id="apiKeyLinkfreshchatapi" target="_blank" rel="noopener noreferrer">Find My Freshchat API Key</a>
+          </div>
+        </fw-input>
+
+        <div class="fw-section-label">Freshsales CRM Settings</div>
+        <fw-input
+          id="crm_domain_copy"
+          label="Freshsales Domain"
+          required
+          placeholder="Find your Freshsales Domain Name From Admin Settings > API Settings"
+        >
+          <div slot="hint-text">https://abc.freshsales.com</div>
+        </fw-input>
+        <fw-input
+          id="crm_api_key_copy"
+          label="Freshsales API Key"
+          type="password"
+          required
+          placeholder="Find your Freshsales API Key From Admin Settings > API Settings"
+        >
+          <div slot="hint-text">
+            <a id="apiKeyLinkcrmapi" target="_blank" rel="noopener noreferrer">Find My Freshsales API Key</a>
+          </div>
+        </fw-input>
+      </form>
+    </div>
+
+    <script src="./assets/iparams.js"></script>
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/dist/crayons/crayons.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
+
+    <script>
+      function showModule(moduleName) {
+  document.getElementById("freshdeskModule").style.display =
+    moduleName === "freshdesk" ? "block" : "none";
+  document.getElementById("freshsalesModule").style.display =
+    moduleName === "freshsales" ? "block" : "none";
+
+  // Buttons
+  document.getElementById("btn-freshdesk").classList.toggle("active", moduleName === "freshdesk");
+  document.getElementById("btn-freshsales").classList.toggle("active", moduleName === "freshsales");
+}
+
+    </script>
+  </body>
+</html>

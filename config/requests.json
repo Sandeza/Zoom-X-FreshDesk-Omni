@@ -1,0 +1,324 @@
+{
+  "get_contact_list": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.d_domain %>",
+      "path": "/api/v2/contacts?per_page=100",
+      "headers": {
+        "Authorization": "Basic <%= encode(iparam.d_api_key) %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+    "get_crmcontact_list": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.crm_domain %>",
+      "path": "/crm/sales/api/contacts",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+
+  "goToOnappinstallApi":{
+        "schema":{
+            "method": "POST",
+            "protocol": "https",
+            "host": "5z4fm86b0g.execute-api.us-east-1.amazonaws.com",
+            "path": "/DEV",
+            "headers": {"Content-Type": "application/json"}
+        }
+    },
+  "add_contact": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.d_domain %>",
+      "path": "/api/v2/contacts",
+      "headers": {
+        "Authorization": "Basic <%= encode(iparam.d_api_key) %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "create_ticket": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.d_domain %>",
+      "path": "/api/v2/tickets",
+      "headers": {
+        "Authorization": "Basic <%= encode(iparam.d_api_key) %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  
+  "add_ticket_note": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.d_domain %>",
+      "path": "/api/v2/tickets/<%= context.ticket_id %>/notes",
+      "headers": {
+        "Authorization": "Basic <%= encode(iparam.d_api_key) %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "search_user_by_phone": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.d_domain %>",
+      "path": "/api/v2/contacts?phone=<%= context.phone_number %>",
+      "headers": {
+        "Authorization": "Basic <%= encode(iparam.d_api_key) %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "saveCallNotes": {
+    "schema":{
+  "method":"POST",
+  "host":"<%= iparam.crm_domain %>",
+  "path":"/crm/sales/api/notes",
+   "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+},  
+  "get_contact_filter":{
+"schema":{
+  "method":"GET",
+  "host":"<%= iparam.crm_domain %>",
+  "path":"/crm/sales/api/contacts/filters",
+   "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+},
+  "get_contact_list_crm": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.crm_domain %>",
+      "path": "/crm/sales/api/contacts/view/<%= context.contactId %>",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "list_user_tickets": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.d_domain %>",
+      "path": "/api/v2/tickets?requester_id=<%= context.contact_id %>&order_by=status&order_type=asc",
+      "headers": {
+        "Authorization": "Basic <%= encode(iparam.d_api_key) %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  
+  "create_conversation": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "list_conversations_by_contact": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/users/<%= context.user_id %>/conversations",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "post_conversation_message": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations/<%= context.conversation_id %>/messages",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "create_contact": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.crm_domain %>",
+      "path": "/crm/sales/api/v2/contacts",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "search_crm_contact": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.crm_domain %>",
+      "path": "/crm/sales/api/filtered_search/contact",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "freshchat_userid": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/users?phone_no=<%= context.phone %>",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "create_user": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/users",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+  "get_crm_contact_by_id": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.crm_domain %>",
+      "path": "/crm/sales/api/contacts/<%= context.contact_id %>",
+      "headers": {
+        "Authorization": "Token token=<%= iparam.crm_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "onAddPrivateNotesInFreshchat": {
+    "schema": {
+      "method": "POST",
+      "host": "<%=iparam.c_domain%>",
+      "path": "/v2/conversations/<%= context.conversationId %>/messages",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+  "callEndedNotifiFchat": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations/",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+  "onUpdateRecordingsInFChatConvo": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations/<%= context.conversationId %>/messages",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "onUpdateConversationInFchat": {
+    "schema": {
+      "method": "PUT",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations/<%= context.conversationId %>",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+
+  "missedCallCreateConvoFchat": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations/<%= context.conversationId %>/messages",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+  "callCreateConvoFchat": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/conversations",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+  "OnGetFreshChatChannel": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/channels",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+
+  "OnCreateFreshChatChannel": {
+    "schema": {
+      "method": "POST",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/channels",
+      "headers": {
+        "Authorization": "Bearer <%= iparam.c_api_key %>",
+        "Content-Type": "application/json"
+      }
+    }
+  },
+  "listAgents": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/agents?role_id=<%= context.role_id %>&login_status=<%= context.login_status %>",
+      "headers": {
+        "accept": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
+  "getFreshchatAccountDetails":{
+    "schema":{
+      "method": "GET",
+      "host": "<%= iparam.c_domain %>",
+      "path": "/v2/accounts/configuration",
+      "headers": {
+        "accept": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  }
+}

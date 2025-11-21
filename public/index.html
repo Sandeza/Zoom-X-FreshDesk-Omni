@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Zoom + Freshdesk App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <!-- Freshworks FDK client -->
+    <script src="{{{appclient}}}"></script>
+
+    <link rel="stylesheet" href="styles/style.css" />
+    <!-- Crayons UI -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@freshworks/crayons@v4/css/crayons-min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="styles/style.css" />
+
+    <script
+      type="module"
+      src="https://static.freshdev.io/fdk/crayons/crayons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://static.freshdev.io/fdk/crayons/crayons.js"
+    ></script>
+  </head>
+
+  <body>
+    <!-- Toggle Switch with Slider -->
+    <div class="platform-slider" onclick="togglePlatform()">
+      <div class="slider-labels">
+        <img
+          src="styles/images/zoomLogo.png"
+          alt="Zoom"
+          id="zoomLogo"
+          class="logo-icon active"
+        />
+        <img
+          src="styles/images/freshdeskLogo.png"
+          alt="Freshdesk"
+          id="freshdeskLogo"
+          class="logo-icon"
+        />
+      </div>
+      <div id="sliderThumb" class="slider-thumb"></div>
+    </div>
+
+    <!-- Top-right Close Button -->
+    <div class="close-button" title="Close App" onclick="closeApp()">−</div>
+
+    <!-- Top-left switchable logo -->
+
+    <div class="logo">
+      <picture>
+        <!-- Option 1: will load if the format or media query matches -->
+        <source srcset="styles/images/SandezaLogo.jpg" type="image/jpg" />
+        <source
+          srcset="../app/styles/images/SandezaLogo.jpg"
+          type="image/jpg"
+        />
+
+        <!-- Fallback image -->
+        <img
+          id="sandezaLogo"
+          src="SandezaLogo.jpg"
+          alt="sandezaLogo"
+          class="sandezaLogo"
+        />
+      </picture>
+    </div>
+
+    <!-- Main content (Tabs) -->
+    <div class="main-content">
+      <fw-tabs id="tab-interface" selected-tab="zoom">
+        <fw-tab slot="tab" panel="zoom"></fw-tab>
+        <fw-tab slot="tab" panel="freshdesk"></fw-tab>
+
+        <fw-tab-panel name="zoom">
+          <iframe
+            src="https://applications.zoom.us/integration/phone/embeddablephone/home"
+            id="zoomCCP"
+            allow="clipboard-read; clipboard-write https://applications.zoom.us"
+            width="100%"
+            height="630px"
+            frameborder="0"
+            scrolling="no"
+            marginheight="0"
+            marginwidth="0"
+          ></iframe>
+        </fw-tab-panel>
+
+        <fw-tab-panel name="freshdesk">
+          <div id="app"></div>
+        </fw-tab-panel>
+      </fw-tabs>
+    </div>
+  </body>
+  <script src="external.js"></script>
+  <script></script>
+</html>

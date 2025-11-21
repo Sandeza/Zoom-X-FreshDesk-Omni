@@ -1,0 +1,67 @@
+/*!
+  * Bootstrap v5.3.7 (https://getbootstrap.com/)
+  * Copyright 2011-2025 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
+  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+  */
+
+/*!
+ * Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com
+ * License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+ * Copyright 2024 Fonticons, Inc.
+ */
+
+/*!
+ * vuex v4.1.0
+ * (c) 2022 Evan You
+ * @license MIT
+ */
+
+/*!
+DOMTokenList
+*/
+
+/*!
+Element.closest and Element.matches
+https://github.com/jonathantneal/closest
+Creative Commons Zero v1.0 Universal
+*/
+
+/*!
+Element.getRootNode()
+*/
+
+/*!
+Element.isConnected()
+*/
+
+/*! #__NO_SIDE_EFFECTS__ */
+
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ *
+ * This file is a port of shadowCSS from webcomponents.js to TypeScript.
+ * https://github.com/webcomponents/webcomponentsjs/blob/4efecd7e0e/src/ShadowCSS/ShadowCSS.js
+ * https://github.com/angular/angular/blob/master/packages/compiler/src/shadow_css.ts
+ */
+
+/**
+* @vue/reactivity v3.5.17
+* (c) 2018-present Yuxi (Evan) You and Vue contributors
+* @license MIT
+**/
+
+/**
+* @vue/runtime-dom v3.5.17
+* (c) 2018-present Yuxi (Evan) You and Vue contributors
+* @license MIT
+**/
+
+/**
+* @vue/shared v3.5.17
+* (c) 2018-present Yuxi (Evan) You and Vue contributors
+* @license MIT
+**/

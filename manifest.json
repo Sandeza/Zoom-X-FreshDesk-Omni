@@ -23,6 +23,7 @@
         }
       },
       "requests": {
+        "getAgentsList": {},
         "saveCallNotes": {},
         "get_contact_filter": {},
         "get_contact_list_crm": {},

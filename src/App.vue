@@ -74,6 +74,42 @@ export default {
 
   methods: {
     ...mapMutations(["setContactList"]),
+    async simulateIncomingCall(){
+      
+  // const callId = notes.data?.callId;
+  let conversationId = "6f736101-5752-4d7e-88af-a582391169dc"
+  const notes = "This is a test note from App.vue";
+  // if (callIdToConversation[callId]?.conversation_id) {
+  //   conversationId = callIdToConversation[callId].conversation_id;
+  // }
+  let agentId = "";
+  if(agentId===null||agentId===undefined||agentId===""){
+    console.error("Agent ID is missing. Cannot add notes.");
+    const result = await window.client.request.invokeTemplate("getAgentsList", {
+  context: {
+    page: 1,
+    items_per_page: 2,
+    sort_order: "asc"
+  }
+});
+console.log("Agents List Result:", result);
+const parsedResult = JSON.parse(result.response);
+agentId = parsedResult.agents?.[0]?.id;
+
+console.log("Extracted Agent ID:", agentId);
+  }
+  // const { notesData } = notes.data;
+  console.log("Notes saved:",  notes, agentId, conversationId);
+  const data = {
+    
+    agentId,
+    notes,
+    conversationId,
+  };
+  const response=client.request.invoke("onAddPrivateNotesInFreshchat", data);
+  console.log("Notes API response:", response);
+
+    },
     //  async simulateIncomingCall() {
     //   // // const data=  await window.client.request.invoke("getAccountId",{});
     //   // // const accountDetails=JSON.parse(data.message);
@@ -329,7 +365,8 @@ console.log('Detected environment:', getEmbeddedEnvironment());
       const { type } = event.data || {};
      
       if (type === "zp-call-ringing-event") {
-          
+          this.$store.commit("call/SET_CONTACT_NAME", "")
+          console.log("Ringing event received","contact name reset",this.$store.getters.contact_name);
              const context = await client.instance.context();
       console.log("Current location:jh", context.location);
       const location = context.location;
@@ -397,7 +434,8 @@ console.log('Detected environment:', getEmbeddedEnvironment());
     handleRingingEvent(client, event.data);  
     }
   if (type === "zp-call-ended-event") {
-    this.$store.commit("call/SET_CONTACT_NAME", "")
+    // this.$store.commit("call/SET_CONTACT_NAME", "")
+    console.log("Call ended event received","contact name reset",this.$store.getters.contact_name);
     const callId = event.data?.data?.callId;
             this.showIncomingCall = false;
         this.$store.commit("common/SET_PAGE_ROUTE", "home");

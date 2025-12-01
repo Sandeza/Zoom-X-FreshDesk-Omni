@@ -220,6 +220,17 @@
       }
     }
   },
+  "getAgentsList": {
+    "schema": {
+      "method": "GET",
+      "host": "<%= iparam.c_domain %>",
+       "path": "/v2/agents?page=<%= context.page %>&items_per_page=<%= context.items_per_page %>&sort_order=<%= context.sort_order %>",
+      "headers": {
+        "accept": "application/json",
+        "Authorization": "Bearer <%= iparam.c_api_key %>"
+      }
+    }
+  },
   "callEndedNotifiFchat": {
     "schema": {
       "method": "POST",

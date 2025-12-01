@@ -984,7 +984,7 @@ export async function processZoomPhoneEvent(client, event) {
 }
         const logPayload = {
           callId,
-          callerName: contact_name || callerName ,
+          callerName: contact_name || phoneNumber ,
           callerNumber: phoneNumber,
           callDirection: callType.toLowerCase(),
           direction:data.result,
@@ -1024,7 +1024,23 @@ export async function addNotes(notes) {
   // if (callIdToConversation[callId]?.conversation_id) {
   //   conversationId = callIdToConversation[callId].conversation_id;
   // }
-  const agentId = store.getters.main_agent_id;
+  let agentId = store.getters.main_agent_id;
+  if(agentId===null||agentId===undefined||agentId===""){
+    console.error("Agent ID is missing. Cannot add notes.");
+    const result = await window.client.request.invokeTemplate("getAgentsList", {
+  context: {
+    page: 1,
+    items_per_page: 2,
+    sort_order: "asc"
+  }
+});
+console.log("Agents List Result:", result);
+const parsedResult = JSON.parse(result.response);
+console.log("Parsed Agents List:", parsedResult);
+agentId = parsedResult.agents?.[0]?.id;
+
+console.log("Extracted Agent ID:", agentId);
+  }
   // const { notesData } = notes.data;
   console.log("Notes saved:",  notes, agentId, conversationId);
   const data = {
@@ -1165,7 +1181,7 @@ export async function handleRingingEvent(client, event) {
         } catch (e) {
           console.error("[Handler] CRM contact error", e);
           // Fallback: use name from event data if CRM call fails
-          console.log("[Handler] Setting fallback contact name to:", name);
+          // console.log("[Handler] Setting fallback contact name to:", name);
           // store.commit("call/SET_CONTACT_NAME", name || "Unknown");
     }
 

@@ -3,7 +3,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import store from './store';
-
+import Fallback from "./Fallback.vue";
 import BootstrapVueNext from 'bootstrap-vue-3';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue-3/dist/bootstrap-vue-3.css';
@@ -56,6 +56,19 @@ library.add(
 );
 const LEADER_KEY = "zoom_tab_leader";
 const HEARTBEAT_TIMEOUT = 3000;
+
+function readLeaderStatus() {
+  try {
+    return JSON.parse(localStorage.getItem(LEADER_KEY));
+  } catch {
+    return null;
+  }
+}
+function writeLeaderStatus(data) {
+  localStorage.setItem(LEADER_KEY, JSON.stringify(data));
+}
+
+
 applyPolyfills().then(() => defineCustomElements());
 
 window.frsh_init().then(function (client) {
@@ -71,30 +84,36 @@ window.frsh_init().then(function (client) {
   console.log('Vue app initialized with Freshworks client:', window.client);
  
 if (tryBecomeLeader()) {
-  console.log("🟢 This tab is the LEADER. Mounting app...");
+  console.log(" This tab is the LEADER. Mounting app...");
   startLeaderHeartbeat();
    app.mount('#app');
 } else {
-  console.log("🔴 This tab is NOT the leader. App will not mount.");
+  console.log(" This tab is NOT the leader. App will not mount.");
+  createApp(Fallback).mount("#app");
 }
   
 });
 function tryBecomeLeader() {
   const now = Date.now();
-  const heartbeat = Number(localStorage.getItem(LEADER_KEY));
+  const info = readLeaderStatus();
 
-  // If leader is alive → cannot take lock
-  if (heartbeat && now - heartbeat < HEARTBEAT_TIMEOUT) {
-    return false;
+  // No leader → take leadership
+  if (!info || now - info.lastHeartbeat > HEARTBEAT_TIMEOUT) {
+    const myToken = crypto.randomUUID();
+    writeLeaderStatus({ token: myToken, lastHeartbeat: now });
+    window.__leaderToken = myToken;
+    return true;
   }
 
-  // Take leadership
-  localStorage.setItem(LEADER_KEY, now.toString());
-  return true;
+  // Someone else is leader
+  return false;
 }
 function startLeaderHeartbeat() {
   setInterval(() => {
-    localStorage.setItem(LEADER_KEY, Date.now().toString());
+    writeLeaderStatus({
+      token: window.__leaderToken,
+      lastHeartbeat: Date.now(),
+    });
   }, HEARTBEAT_TIMEOUT / 2);
 }
 

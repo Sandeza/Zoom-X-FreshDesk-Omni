@@ -7,6 +7,8 @@
       :change="searchContact()"
       placeholder="Search Recent Calls"
     />
+    <!-- <button size="sm" class="ml-2" @click="dummy()">Load Dummy Data</button> -->
+   
   </div>
 
   <div class="recent-call-list">
@@ -23,19 +25,25 @@
             class="call-history-icon d-flex justify-content-center"
           >
             <font-awesome-icon
-              v-if="contact.callDirection === 'missed'"
+              v-if="contact.direction === 'missed'||contact.direction==='abandoned'"
               class="call-icon missed"
               icon="level-up-alt"
               size="sm"
             />
             <font-awesome-icon
-              v-if="contact.callDirection === 'outgoing'"
+              v-else-if="contact.direction==='Rejected'"
+              class="call-icon missed"
+              icon="level-up-alt"
+              size="sm"
+            />
+            <font-awesome-icon
+              v-else-if="contact.callDirection === 'outgoing'"
               class="call-icon outbound"
               icon="arrow-up"
               size="lg"
             />
             <font-awesome-icon
-              v-if="contact.callDirection === 'incoming'"
+              v-else-if="contact.callDirection === 'incoming'"
               class="call-icon inbound"
               icon="arrow-down"
               size="lg"
@@ -155,6 +163,34 @@ export default {
     searchContact() {
       console.log(this.recentCallSearch);
     },
+    dummy(){
+      console.log("button clicked");
+      this.$store.commit("callLogs/SET_CALL_LOGS", [
+  {
+    callId: "CALL_001",
+    callerName: "John Mathews",
+    callerNumber: "+1 202-555-0148",
+    callDirection: "incoming",
+    callTimeStamp: "2025-11-25 10:32 AM"
+  },
+  {
+    callId: "CALL_002",
+    callerName: "Unknown Caller",
+    callerNumber: "+1 415-555-7782",
+    callDirection: "incoming",
+    callTimeStamp: "2025-11-25 09:10 AM",
+    direction:"Rejected"
+  },
+  {
+    callId: "CALL_003",
+    callerName: "Sophia Wilson",
+    callerNumber: "+1 305-555-6621",
+    callDirection: "outgoing",
+    callTimeStamp: "2025-11-24 08:45 PM"
+  }
+]);
+
+    },
     contactRedirection(contact) {
     
       // console.log(contact);
@@ -193,24 +229,35 @@ export default {
 
 .recent-input-search {
   width: 100%;
-  border-radius: 6px;
-  padding: 6px 10px;
-  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d0d7de;
+  background: #f9fafb;
+  transition: all 0.2s ease;
+}
+
+.recent-input-search:focus {
+  border-color: #0e72ed;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(14, 114, 237, 0.15);
 }
 
 .recent-call-list {
-  margin-top: 15px;
+  margin-top: 12px;
 }
 
 .recent-call-entry {
-  padding: 10px 14px;
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.2s ease;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  margin-bottom: 10px; /* looks like a card */
+  transition: all 0.2s ease;
+  border: 1px solid #f0f0f0;
 }
 
 .recent-call-entry:hover {
-  background-color: #f9f9f9;
-  cursor: pointer;
+  background-color: #f7fbff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 .call-history-icon {
@@ -220,63 +267,92 @@ export default {
 }
 
 .call-icon {
-  margin-top: 4px;
+  margin-top: 2px;
+  padding-right: 6px;
+  transition: transform 0.2s ease;
 }
 
+.recent-call-entry:hover .call-icon {
+  transform: scale(1.1);
+}
+
+/* ICON COLORS */
 .call-icon.missed {
-  color: #db4437;
+  color: #e74c3c;
+}
+.call-icon.rejected {
+  color: #ff5733;
 }
 
 .call-icon.outbound {
-  color: #4285f4;
+  color: #0e72ed;
 }
 
 .call-icon.inbound {
-  color: #0f9d58;
+  color: #28b463;
 }
 
 .call-log-list {
   padding-left: 10px;
-  align-items: flex-start;
   text-align: left;
 }
 
 .contact-info-name {
   font-weight: 600;
   margin-bottom: 2px;
+  font-size: 0.95rem;
 }
 
 .contact-info-number {
   font-size: 0.9em;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #222;
 }
 
 .contact-time-stamp {
-  font-size: 0.75em;
+  font-size: 0.72em;
   color: #0e72ed;
+  margin-top: 3px;
 }
 
 .icon-actions font-awesome-icon {
-  margin-left: 5px;
-  color: #999;
-  transition: color 0.2s ease;
+  margin-left: 10px;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.icon-actions :hover {
+.icon-actions font-awesome-icon:hover {
   color: #0e72ed;
+  transform: translateY(-1px);
 }
-
 .contact-add-icon {
-  padding-right: 8px;
+  background-color: transparent;
+  margin-top: 20px;
+  border-style: none;
+  border-radius: 6px;
+  
+
+  margin-right: 10px;
 }
 .contact-add-icon:hover {
-  color: #28c76f;
+  color: #28c76f !important;
 }
 
 .no-recents {
   text-align: center;
-  padding: 20px;
-  color: #888;
+  padding: 25px 10px;
+  color: #666;
+  font-size: 0.9rem;
 }
+.contact-phone-icon {
+  background-color: transparent;
+  margin-top: 20px;
+  border-style: none;
+  border-radius: 6px;
+}
+.contact-phone-icon:hover {
+  color: #0e72ed !important;
+}
+
 </style>

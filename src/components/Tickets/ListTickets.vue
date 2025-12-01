@@ -3,14 +3,23 @@
     <!-- Caller Info Card -->
     <div class="zoom-card">
       <div class="zoom-card__header">
-        <div class="avatar">
-          <i class="fas fa-user"></i>
-        </div>
-        <div>
-          <div class="caller-name">{{ caller_name || "Unknown Caller" }}</div>
-          <div class="caller-number">{{ caller_number || "N/A" }}</div>
-        </div>
-      </div>
+  <div class="avatar">
+    <i class="fas fa-user"></i>
+  </div>
+
+  <div>
+    <div class="caller-name">{{ caller_name || "Unknown Caller" }}</div>
+    <div class="caller-number">{{ caller_number || "N/A" }}</div>
+  </div>
+
+  <!-- Corrected Add Contact button logic -->
+  <div v-if="caller_name === 'Unknown Caller'" class="add-contact-wrapper">
+    <button class="add-contact-btn" @click="addContact">
+      <i class="fas fa-user-plus"></i>
+    </button>
+  </div>
+</div>
+
 
       <div class="zoom-card__details">
         <span class="call-state in-call">
@@ -25,7 +34,7 @@
 
     <!-- Tickets -->
     <div class="section-header">Tickets</div>
-    <div v-if="tickets.length" class="ticket-list">
+    <div v-if="tickets && tickets.length" class="ticket-list">
       <div
         v-for="ticket in tickets"
         :key="ticket.id"
@@ -81,19 +90,21 @@
         <img class="icon" src="../assets/cc.png" alt="Freshdesk" />
         View Contact
       </button>
-      <button class="switch-btn" @click="goToFreshchat">
+      <!-- <button class="switch-btn" @click="goToFreshchat">
         <img class="icon" src="../assets/cnv.png" alt="Freshchat" />
         View conversation
-      </button>
+      </button> -->
     </div>
   </div>
 </template>
 
 <script>
+import CreateContact from "../Contact/CreateContact.vue";
 import HomePage from "../Home/HomePage.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import CreateTicket from "../Tickets/createTicket.vue";
+
 import AddNotes from "../Notes/AddNotes.vue";
 import { mapGetters } from "vuex";
 import { useStore } from "vuex";
@@ -119,17 +130,30 @@ export default {
   name: "ListTickets",
   components: { FontAwesomeIcon, CreateTicket, HomePage, AddNotes },
 
-  data() {
+   data() {
     // Get call state from Vuex store
-    const name= this.$store.getters.contact_name;
-    console.log("Contact Name from Store:", name);
+    // const name= this.$store.getters.contact_name;
+    // console.log("Contact Name from Store:", name);
+
     const callState = this.$store.state.call.current_call || {};
-    console.log("callState in CallConnected:", callState);  
-    const incoming=callState.direction=="inbound";
-    const phoneNumber=incoming?callState.caller.phoneNumber:callState.callee.phoneNumber;
+     const incoming=callState?.direction=="inbound";
+    console.log("callState in CallConnected:", callState); 
+    const phoneNumber=incoming?callState?.caller?.phoneNumber:callState?.callee?.phoneNumber;
+    console.log("Phone Number from Call State:", phoneNumber);
+//     const user=await window.client.request.invokeTemplate("search_user_by_phone",{
+//       context: { phone_number:123412834 },
+//     });
+//     console.log("User fetched by phone:", JSON.parse(user.response));  
+//     const parsed = JSON.parse(user.response) || [];
+// const name = parsed.length > 0 ? parsed[0].first_name : null;
+//     console.log("Name fetched by phone:", name);
+     
+   
+    
     // Optionally fallback if not present
     return {
-      caller_name:name||callState.caller.name || "",
+      CreateContact:false,
+      caller_name:"",
       caller_number: phoneNumber || "",
       call_state: "ONGOING CALL",
       tickets: [],
@@ -137,6 +161,19 @@ export default {
     };
   },
   async mounted() {
+    const callState = this.$store.state.call.current_call || {};
+     const incoming=callState?.direction=="inbound";
+    console.log("callState in CallConnected:", callState); 
+    const phoneNumber=incoming?callState?.caller?.phoneNumber:callState?.callee?.phoneNumber;
+    console.log("Phone Number from Call State:", phoneNumber);
+    const user=await window.client.request.invokeTemplate("search_user_by_phone",{
+      context: { phone_number:phoneNumber },
+    });
+    console.log("User fetched by phone:", JSON.parse(user.response));  
+    const parsed = JSON.parse(user.response) || [];
+const name = parsed.length > 0 ? parsed[0].first_name : null;
+    console.log("Name fetched by phone:", name);
+    this.caller_name=name||"Unknown Caller";
   function normalizePhoneNumber(phone) {
   if (!phone) return "";
   return phone.startsWith("+") ? phone.substring(1) : phone;
@@ -278,7 +315,7 @@ export default {
         console.log("Opening Freshdesk in current tab");
        window.client.interface.trigger("click", {
         id: "contact",
-        value:contactId
+        value:freshdeskId||contactId
         })
        
     },
@@ -339,14 +376,17 @@ export default {
         window.open(freshworksDomain);
      
     },
- 
+ addContact() {
+  console.log("Add Contact clicked");
+   this.$store.commit("common/SET_PAGE_ROUTE", "add-contact");   
+},
     
     createTicket() {
       console.log("commited");
       setTimeout(() => {
         this.$store.commit("common/SET_PAGE_ROUTE", "ticket");
       }, 0);
-      //   await client.request.invokeTemplate("createTicket", {
+      //     await client.request.invokeTemplate("createTicket", {
       //     body: JSON.stringify({
       //       description: "Details about the issue...",
       //       subject: "created from mobile.........",
@@ -604,9 +644,9 @@ export default {
   transition: background 0.2s ease;
 }
 
-.button:hover {
+/* .button:hover {
   background-color: #1e40af;
-}
+} */
 
 /* Empty State */
 .no-tickets {
@@ -649,12 +689,30 @@ export default {
   gap: 4px;
 }
 
-.switch-btn:hover {
+/* .switch-btn:hover {
   color: #2563eb;
-}
+} */
 
 .icon {
   width: 28px;
   height: 28px;
 }
+.add-contact-btn {
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-contact-btn:hover {
+  background: #1d4ed8;
+}
+
 </style>

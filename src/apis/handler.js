@@ -541,6 +541,7 @@ export async function processZoomPhoneEvent(client, event) {
         if (callIdToConversation[callId]) {
           const conversation = callIdToConversation[callId];
           console.log(`[Handler] Conversation already exists for callId ${callId}, reusing.`);
+           console.log("vvconversation",conversation);
           try {
             store.commit("call/SET_CONVERSATION_APPID", conversation.app_id);
             store.commit("call/SET_CONVERSATION_FUID", conversation.assigned_agent_id);
@@ -556,6 +557,7 @@ export async function processZoomPhoneEvent(client, event) {
           if (callCreatePromises[callId]) {
             try {
               const conversation = await callCreatePromises[callId];
+              console.log("vvconversation",conversation);
               if (conversation) {
                 store.commit("call/SET_CONVERSATION_APPID", conversation.app_id);
                 store.commit("call/SET_CONVERSATION_FUID", conversation.assigned_agent_id);
@@ -985,6 +987,7 @@ export async function processZoomPhoneEvent(client, event) {
           callerName: contact_name || callerName ,
           callerNumber: phoneNumber,
           callDirection: callType.toLowerCase(),
+          direction:data.result,
           callTimeStamp: formatDateTime24(data.dateTime),
           // callDuration: data.duration,
           _fragmentKey: "zp-call-log-completed-event",
@@ -1016,18 +1019,18 @@ export async function processZoomPhoneEvent(client, event) {
 
 
 export async function addNotes(notes) {
-  const callId = notes.data?.callId;
+  // const callId = notes.data?.callId;
   let conversationId = store.getters.conversation_id;
-  if (callIdToConversation[callId]?.conversation_id) {
-    conversationId = callIdToConversation[callId].conversation_id;
-  }
+  // if (callIdToConversation[callId]?.conversation_id) {
+  //   conversationId = callIdToConversation[callId].conversation_id;
+  // }
   const agentId = store.getters.main_agent_id;
-  const { notesData } = notes.data;
-  console.log("Notes saved:", callId, notesData.Description, agentId, conversationId);
+  // const { notesData } = notes.data;
+  console.log("Notes saved:",  notes, agentId, conversationId);
   const data = {
-    callId,
+    
     agentId,
-    notesData,
+    notes,
     conversationId,
   };
   await invokeWithRetry(client, "onAddPrivateNotesInFreshchat", data);
@@ -1112,7 +1115,7 @@ function normalizePhoneNumber(phone) {
 export async function handleRingingEvent(client, event) {
   const { type, data: callData } = event;
   const callId = callData.callId;
-
+  // store.commit("call/SET_CONTACT_NAME", "")
   let callType = callData.callType;
   const isInbound = !callType && (/inbound|incoming/i.test(callData.direction || callData.callDirection || ""));
   callType = callType || (isInbound ? "INCOMING" : "OUTGOING");
@@ -1136,23 +1139,14 @@ export async function handleRingingEvent(client, event) {
     callerName: name,
     time: new Date().toISOString(),
   });
-  
-
-  if (type === "zp-call-ringing-event") {
-   
-    // await setupCrmForCall(client, callId, phone, name);
-
-    // Also attempt to find or create a full CRM contact by phone so the
-    // server-side CRM record is available during the call flow. This will
-    // populate the org_contact_id in Vuex when successful.
-    try {
+  try {
        const crmResp = await client.request.invoke(
             "findOrCreateFullCrmContactByPhone",
             { phone, name }
           );
           const crmContact = JSON.parse(crmResp.message);
           console.log("[Handler] CRM contact:", crmContact.contact.mcr_id);
-          console.log("[Handler] CRM contact first_name:", crmContact.contact.first_name, "name field:", crmContact.contact.name);
+          console.log("[Handler] CRM contact first_name:", crmContact.contact.first_name, "name field:", crmContact.contact.last_name,"display_name:",crmContact.contact.display_name);
 
           console.log("crm contact id type", typeof crmContact.contact.mcr_id);
           console.log(
@@ -1161,9 +1155,9 @@ export async function handleRingingEvent(client, event) {
           );
           store.commit("call/SET_CRM_CONTACT_ID", crmContact);
           // Use name from CRM contact, preferring 'name' field over 'first_name', fall back to passed name
-          const contactNameToSet = crmContact.contact.name || crmContact.contact.first_name || name || "Unknown";
-          console.log("[Handler] Setting contact name to:", contactNameToSet);
-          store.commit("call/SET_CONTACT_NAME", contactNameToSet);
+          const contactNameToSet =  crmContact.contact.first_name ||crmContact.contact.last_name||crmContact.contact.display_name|| "Unknown";
+          console.log("[Handler] Setting contact name to:",  crmContact.contact.first_name,crmContact.contact.last_name,crmContact.contact.display_name);
+          store.commit("call/SET_CONTACT_NAME", crmContact.contact.display_name|| crmContact.contact.first_name ||crmContact.contact.last_name);
           store.commit(
             "call/ORG_CONTACT_ID",
             BigInt(crmContact.contact.mcr_id).toString()
@@ -1172,8 +1166,17 @@ export async function handleRingingEvent(client, event) {
           console.error("[Handler] CRM contact error", e);
           // Fallback: use name from event data if CRM call fails
           console.log("[Handler] Setting fallback contact name to:", name);
-          store.commit("call/SET_CONTACT_NAME", name || "Unknown");
+          // store.commit("call/SET_CONTACT_NAME", name || "Unknown");
     }
+
+  if (type === "zp-call-ringing-event") {
+   
+    // await setupCrmForCall(client, callId, phone, name);
+
+    // Also attempt to find or create a full CRM contact by phone so the
+    // server-side CRM record is available during the call flow. This will
+    // populate the org_contact_id in Vuex when successful.
+    
   }
 
   if (hasFragment(callId, type)) {

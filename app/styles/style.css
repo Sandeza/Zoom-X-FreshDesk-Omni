@@ -54,11 +54,11 @@
   transition: all 0.2s ease-in-out;
 }
 
-.switch-btn:hover {
+/* .switch-btn:hover {
   background-color: #e0f6ec;
   color: #00a884;
   transform: translateY(-1px);
-}
+} */
 
 .icon {
   width: 18px;

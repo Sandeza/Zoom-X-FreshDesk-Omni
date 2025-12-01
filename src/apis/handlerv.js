@@ -76,7 +76,7 @@ export async function callRingingFragment(client,event) {
   const magent = store.getters.main_agent_id;
   const agentId = store.getters.fcrm_loggedin_agent_uuid;
   const agentName = store.getters.fcrm_loggedin_agent_name;
-  const orgContactId = store.getters.org_contact_id;
+  const orgContactId = store.getters.org_   ;
   store.commit("call/SET_CALL_DETAILS", data.callId);
   const phoneNumber = isInbound
     ? data.caller?.number || data.caller?.phoneNumber

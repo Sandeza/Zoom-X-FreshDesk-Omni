@@ -33,11 +33,19 @@ document.addEventListener("DOMContentLoaded", async function () {
     locationType = context.location;
     console.log("FDK initialized. Current location:", locationType);
  ;
+ try{
+  console.log("Testingaaa");
        const response12 = await window.client.data.get("currentProduct");
       console.log("Testing");
       console.log("Current Productxx:", response12);
       locationProduct = response12.currentProduct;
       console.log("Current Productpppp:", locationProduct);
+ }
+ catch(err){
+  locationProduct="freshdesk";
+      console.log("Error fetching current product:", err);
+ }
+ console.log("Current Product:", locationProduct);
   if(locationProduct==="freshsales"){
     freshdeskLogo.src = "styles/images/freshSalesLo.png"; // your CRM logo path
     freshdeskLogo.alt = "FreshSales CRM";

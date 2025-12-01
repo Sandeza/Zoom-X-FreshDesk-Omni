@@ -32,8 +32,10 @@
       </button>
      
 <!-- Notes Added Popup -->
-<div v-if="showNotesPopup" class="notes-popup">
-   Notes Added
+<div v-if="showNotesPopup" :class="['notes-popup', popupType]">
+  <i v-if="popupType === 'success'" class="fas fa-check-circle"></i>
+  <i v-if="popupType === 'error'" class="fas fa-exclamation-circle"></i>
+  {{ popupMessage }}
 </div>
     </div>
  
@@ -55,6 +57,9 @@
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faUser, faPhone, faSave } from "@fortawesome/free-solid-svg-icons";
 import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  addNotes
+} from "../../apis/handler.js";
 library.add(faUser, faPhone, faSave);
  
 export default {
@@ -66,14 +71,16 @@ export default {
     const callState = this.$store.state.call.current_call || {};
     console.log("callState in CallConnected:", callState);  
     const incoming=callState.direction=="inbound";
+    const caller_name=incoming?callState.caller.name:callState.callee.name;
     const phoneNumber=incoming?callState.caller.phoneNumber:callState.callee.phoneNumber;
+    const plusRemovedNumber =  phoneNumber.replace("+", "")
     return {
-      caller_name: name || callState.caller.name || "",
+      caller_name: name || plusRemovedNumber || "UK",
       caller_number: phoneNumber || "",
       call_state: "ONGOING CALL",
       callNotes: "",
       showNotesPopup: false,
- 
+      popupType: "success", 
     };
   },
   async mounted() {
@@ -154,26 +161,39 @@ export default {
         return;
       }
         console.log("Opening Freshchat in new tab");
-        window.open(freshworksDomain);
+        // window.open(freshworksDomain);
       const freshchatURL = `https://${iparams.crm_domain}/crm/messaging/a/${account_id}/inbox/open/0/conversation/${conversationId}`;
       window.open(freshchatURL);
       }
     },
-    saveNotes() {
-      console.log("Saving call notes:", this.callNotes);
-      const contactId = this.$store.getters.crm_contact_id.contact.id;
-      console.log("Associated contact ID:", contactId);
-      // You can dispatch Vuex action or API call here
-      window.client.request.invoke("saveCallNotes", { notes: this.callNotes, contactId:contactId})
-         // 👉 Show popup
+    async saveNotes() {
+    if (!this.callNotes.trim()) {
+      // Show warning popup
+      this.popupMessage = "Cannot save empty notes!";
+      this.popupType = "error";
       this.showNotesPopup = true;
-      setTimeout(() => {
-        this.showNotesPopup = false;
-      }, 2000); // hide after 2 sec
- 
- 
-      this.callNotes = "";
-    },
+      setTimeout(() => (this.showNotesPopup = false), 2000);
+      return;
+    }
+
+    try {
+      await addNotes(this.callNotes); // save notes
+      console.log("Call notes saved:", this.callNotes);
+
+      this.popupMessage = "Notes Added!";
+      this.popupType = "success";
+      this.showNotesPopup = true;
+      setTimeout(() => (this.showNotesPopup = false), 2000);
+
+      this.callNotes = ""; // clear textarea
+    } catch (error) {
+      console.error("Error saving notes:", error);
+      this.popupMessage = "Error saving notes!";
+      this.popupType = "error";
+      this.showNotesPopup = true;
+      setTimeout(() => (this.showNotesPopup = false), 2000);
+    }
+  }
   },
 };
 </script>
@@ -217,6 +237,7 @@ export default {
   font-size: 0.9rem;
   resize: vertical;
   outline: none;
+ color:black
 }
  
 .notes-textarea:focus {
@@ -317,9 +338,9 @@ export default {
   gap: 4px;
 }
  
-.switch-btn:hover {
+/* .switch-btn:hover {
   color: #2563eb;
-}
+} */
  
 .icon {
   width: 28px;
@@ -334,22 +355,50 @@ export default {
 }
  
 .notes-popup {
-  padding: 6px 12px;
-  background: #10b981; /* green */
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: white;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  animation: fadeInOut 2s ease forwards;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  animation: popupSlide 0.4s ease, fadeOut 2s ease 1.6s forwards;
+  z-index: 9999;
+  min-width: 220px;
+  justify-content: center;
 }
- 
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateX(-8px); }
-  10% { opacity: 1; transform: translateX(0); }
-  90% { opacity: 1; }
-  100% { opacity: 0; transform: translateX(-8px); }
+
+/* Success and Error Colors */
+.notes-popup.success {
+  background: rgba(16, 185, 129, 0.9);
 }
- 
+
+.notes-popup.error {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+/* Slide + Fade Animations */
+@keyframes popupSlide {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.notes-popup i {
+  font-size: 1.1rem;
+}
+
  
 </style>
  

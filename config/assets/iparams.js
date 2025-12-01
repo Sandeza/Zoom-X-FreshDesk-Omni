@@ -107,8 +107,7 @@ function validate() {
     const crmapiKeyField = document.getElementById("crm_api_key");
 
     if (
-      !ddomainField?.value ||
-      !dapiKeyField?.value ||
+     
       !cdomainField?.value ||
       !capiKeyField?.value ||
       !crmdomainField?.value ||

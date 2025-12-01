@@ -1,7 +1,7 @@
 <template>
   <div class="homepage-container">
     <!-- Fixed Tabs -->
-    <div class="tabs">
+    <div class="tabs" :class="productClass">
       <div
         :class="['tab-item', { active: home_tab === 'recent' }]"
         @click="setTab('recent')"
@@ -32,7 +32,7 @@ import RecentCalls from "../Contact/RecentCalls.vue";
 import ContactList from "../Contact/ContactList.vue";
 import { useStore } from "vuex";
 import { computed } from "vue";
-
+const productClass = ref("freshdesk");
 const store = useStore();
 const home_tab = computed(() => store.getters.home_tab);
 const locationType = ref("");
@@ -45,17 +45,26 @@ function setTab(tab) {
   });
   store.commit("common/SET_HOME_TAB", tab);
 }
-const home_tabComponent = computed(() =>
-  home_tab.value === "recent" ? RecentCalls : ContactList
-);
+
 
 
 onMounted(async () => {
+ 
+
   try {
     const client = window.client;
     const context = await client.instance.context();
     locationType.value = context.location;
     console.log("Current location:", locationType.value);
+    const response12 = await window.client.data.get("currentProduct");
+    console.log("Current product:", response12.currentProduct);
+
+    // Normalize: freshchat + freshdesk → green
+    if (response12.currentProduct === "freshsales") {
+      productClass.value = "freshsales"; // orange
+    } else {
+      productClass.value = "freshdesk"; // green (for both freshdesk + freshchat)
+    }
   } catch (error) {
     console.error("Error fetching context:", error);
   }
@@ -134,14 +143,30 @@ const goToFreshchat = () => {
 }
 
 .tab-item.active {
-  background-color: #28b76b;
-  color: white;
+  color: #fff;
   font-weight: 600;
+}
+.tabs.freshdesk {
+  --activeColor: #28b76b; /* green */
+  --hoverColor: #7eeeba;
+}
+.tabs.freshchat {
+  --activeColor: #28b76b; /* green */
+  --hoverColor: #7eeeba;
+}
+.tabs.freshsales {
+  --activeColor: #ff7900; /* orange  */
+  --hoverColor: #ffb27a;
+}
+.tab-item.active {
+  background-color: var(--activeColor);
 }
 
 .tab-item:hover {
-  background-color: #7eeeba;
+  background-color: var(--hoverColor);
 }
+  
+
 
 .scroll-area {
   flex-grow: 1;

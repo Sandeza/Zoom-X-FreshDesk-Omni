@@ -27,14 +27,18 @@ export default {
   name: "IncomingCallBanner",
  
   data() {
- 
-    const call = this.$store.state.call.current_call || {};
- 
+    
+    const call = this.$store.getters.current_call || {};
+    console.log("IncomingCallBanner call data:", call);
+    const data=this.$store.getters.contact_name;
+    console.log("IncomingCallBanner contact data:", data);
+    const plusRemovedNumber =  call.caller.phoneNumber.replace("+", "")
+      
     return {
  
-      callee_name: call.callerName || "Unknown",
+      callee_name: data || plusRemovedNumber ||"Unknown",
  
-      callee_number: call.phoneNumber || "",
+      callee_number: call.caller.phoneNumber || "",
  
       zoomUrl: call.zoomUrl || "",
  

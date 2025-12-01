@@ -73,6 +73,8 @@ exports = {
               recording_available: "true",
               recording_playable: "false",
               recording_link: options.voicemail_link,
+              callback_available:"true"
+
             },
           },
         ],
@@ -121,15 +123,15 @@ exports = {
 
   onAddPrivateNotesInFreshchat: async function (options) {
     // console.log("📝 Adding private note:", options);
-    const disposition = options.notesData.Disposition
-      ? options.notesData.Disposition
-      : "no Disposition";
+    // const disposition = options.notesData.Disposition
+    //   ? options.notesData.Disposition
+    //   : "no Disposition";
     try {
       const payload = {
         message_parts: [
           {
             text: {
-              content: `<html><b>Disposition: ${disposition}</b><br>${options.notesData.Description}</html>`,
+              content: `<html>${options.notes}</html>`,
             },
           },
         ],
@@ -306,14 +308,32 @@ exports = {
           ],
         }),
       });
-    // console.log("[CRM_CONTACT] Search response raw:", contactsResp.response);
+    console.log("[CRM_CONTACT] Search response raw:", contactsResp.response);
 
       const data = JSON.parse(contactsResp.response);
       // console.log("[CRM_CONTACT] Parsed data:", data);
+      let finalData = data; // keep same variable name usage
 
-      if (data.contacts && data.contacts.length) {
-        // console.log("[CRM_CONTACT] Found contact:", data.contacts[0]);
-        const contactId = data.contacts[0].id;
+    if (!data.contacts || data.contacts.length === 0) {
+      console.log("[CRM_CONTACT] No contacts found with mobile_number, trying work_number",data);
+      const workSearchResp = await $request.invokeTemplate("search_crm_contact", {
+        body: JSON.stringify({
+          filter_rule: [
+            { attribute: "work_number", operator: "is", value: "+" + args.phone },
+          ],
+        }),
+      });
+
+      const workData = JSON.parse(workSearchResp.response);
+
+      if (workData.contacts && workData.contacts.length > 0) {
+        finalData = workData; // override with work_number results
+      }
+    }
+    console.log("[CRM_CONTACT] Final search data:", finalData);
+      if (finalData.contacts && finalData.contacts.length) {
+        // console.log("[CRM_CONTACT] Found contact:", finalData.contacts[0]);
+        const contactId = finalData.contacts[0].id;
         // console.log("[CRM_CONTACT] Fetching full details for ID:", contactId);
 
         const fullContactResp = await $request.invokeTemplate(
@@ -322,10 +342,10 @@ exports = {
             context: { contact_id: contactId },
           }
         );
-      // console.log(
-      //   "[CRM_CONTACT] Full contact details:",
-          // fullContactResp.response
-        // );
+      console.log(
+        "[CRM_CONTACT] Full contact details:",
+          fullContactResp.response
+        );
 
         renderData({ status: 200, message: fullContactResp.response });
         return;
@@ -340,10 +360,11 @@ exports = {
           },
         }),
       });
-      // console.log(
-      //   "[CRM_CONTACT] Create response raw:",
-      //   newContactResp.response
-      // );
+      
+      console.log(
+        "[CRM_CONTACT] Create response raw:",
+        newContactResp.response
+      );
 
       const newContact = JSON.parse(newContactResp.response);
       // console.log("[CRM_CONTACT] Created contact:", newContact);
@@ -964,9 +985,9 @@ exports = {
       let contact = contacts.length ? contacts[0] : null;
       if (!contact) {
         // console.log("[FETCH_TICKETS] No contact found, creating...");
-        const createResp = await $request.invokeTemplate("add_contact", {
-          body: JSON.stringify({ name: args.phone, phone: args.phone }),
-        });
+        // const createResp = await $request.invokeTemplate("add_contact", {
+        //   body: JSON.stringify({ name: args.phone, phone: args.phone }),
+        // });
         // console.log(
         //   "[FETCH_TICKETS] Create contact response:",
         //   createResp.response

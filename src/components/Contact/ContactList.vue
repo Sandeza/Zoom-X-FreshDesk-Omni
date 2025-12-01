@@ -26,7 +26,7 @@
                     icon="fa-solid fa-user"
                     class="contact-icon"
                   />
-                  {{ row.item.name || row.item.first_name}}
+                  {{ row.item.display_name||row.item.name || row.item.first_name||row.item.last_name }}
                 </a>
               </h6>
 
@@ -130,7 +130,8 @@ const filteredContacts = computed(() => {
   if (!keyword) return contactsWithPhone;
 
   return contactsWithPhone.filter((contact) => {
-    const name = (contact.name || contact.first_name || "").toLowerCase();
+    console.log("Filtering contact:", contact);
+    const name = (contact.name || contact.first_name || contact.last_name || contact.display_name || "").toLowerCase();
     const phone = (contact.phone || contact.work_number ||contact.mobile_number|| "").toString().toLowerCase();
     const email = (contact.email || "").toLowerCase();
 

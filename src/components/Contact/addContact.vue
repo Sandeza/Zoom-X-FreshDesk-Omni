@@ -62,7 +62,7 @@ import { mapGetters } from "vuex";
 // import store from "@/store";
 // import { mapGetters } from "vuex";
 export default {
-  name: "CreateContact",
+  name: "AddContact",
   data() {
     return {
       form: {
@@ -153,7 +153,7 @@ export default {
         })
         .then((res) => {
           console.log(" Contact created successfully:", res.response);
-          this.$store.dispatch("common/updatePageRoute", "home");
+          this.$store.dispatch("common/updatePageRoute", "call");
         })
         .catch((error) => {
           console.error(" Error creating contact:", error);
@@ -161,7 +161,7 @@ export default {
     },
     cancel() {
       console.log("cancel notes clicked");
-      this.$store.dispatch("common/updatePageRoute", "home");
+      this.$store.dispatch("common/updatePageRoute", "call");
     },
   },
 };

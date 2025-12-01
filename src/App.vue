@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-  <!-- Simulation Buttons -->
+     <!-- Simulation Buttons -->
      <!-- <div class="sim-buttons">
       <button @click="simulateIncomingCall">RINGING</button>
       <button @click="CONNECTED">CONNECTED</button>
@@ -15,7 +15,8 @@
     </div>  -->
     <HomePage v-if="page_route === 'home'" />
     <ListTickets v-if="page_route == 'call'"></ListTickets>
-    <CreateContact v-if="page_route == 'new-contact'"></CreateContact>
+    <AddContact v-if="page_route== 'add-contact'"></AddContact>
+    <CreateContact v-if="page_route== 'new-contact'"></CreateContact>
     <IncomingCall v-if="page_route === 'incoming_call'" />
     <!-- Always render IncomingCall as a floating widget -->
     <IncomingCall
@@ -36,6 +37,7 @@ import ListTickets from "./components/Tickets/ListTickets.vue";
 import { ref } from "vue";
 import IncomingCall from "./components/call/IncomingCall.vue";
 import CreateContact from "./components/Contact/CreateContact.vue";
+import AddContact from "./components/Contact/addContact.vue";
 import CreateTicket from "./components/Tickets/createTicket.vue";
 import AddNotes from "./components/Notes/AddNotes.vue";
 import {
@@ -45,211 +47,11 @@ import {
   handleVoicemailEvent,
 } from "./apis/handler.js";
 import CrmConnect from "./components/CrmConnect/CrmConnect.vue";
-// import  { handleRingingEvent }  from "./handler.js";
-// ------- Unified Zoom Call Event Dedupe Engine -------
-// Place this at the top of mounted() or in a module imported
-// before registering the window message listener.
+
 const callIdValue = "100000000013citiigjlkjlokithorodin12345";
 const callIdValue1 = "100000000013_1";
 const direction = "inbound";
-///// CONFIG
-const RESERVE_TTL_MS = 5000;     // how long a reservation lives (auto-release)
 
-///// STATE
-const CALL_STATE = new Map(); // callId -> { ended: bool, voicemail: bool, recording: bool, connected: bool, ringing: bool }
-const connectedReservations = new Set();
-const recordingReservations = new Set();
-const voicemailReservations = new Set();
-const endedReservations = new Set();
-const calllogReservations = new Set();
-let callLogProcessingLock = false; // mutex for call log processing
-
-///// BroadcastChannel (single handler)
-const bc = new BroadcastChannel("zoom-call-dedupe-channel");
-function handleZoomEventOnce(event, eventName, handlerFn) {
-  const callId = event?.data?.data?.callId;
-  if (!callId) return;
-
-  const lockKey = `zoom-event-${eventName}-${callId}`;
-
-  // 1️⃣ Leader tab dedupe (across windows)
-  if (!acquireCrossTabLock(lockKey, 3000)) {
-    console.log(`⛔ SKIPPED (leader tab handled already): ${eventName}`, callId);
-    return;
-  }
-
-  // 2️⃣ Local dedupe (within same tab)
-  const s = ensureCallState(callId);
-  if (s[eventName]) {
-    console.log(`⛔ SKIPPED (same tab duplicate): ${eventName}`, callId);
-    return;
-  }
-
-  // Lock local state
-  s[eventName] = true;
-
-  console.log(`✅ Processing ${eventName} once`, callId);
-
-  try {
-    handlerFn(event);
-  } catch (err) {
-    console.error(`❌ Error in ${eventName}:`, err);
-  }
-}
-
-bc.onmessage = (msg) => {
-  if (!msg?.data) return;
-  const { type, callId } = msg.data;
-
-  switch (type) {
-    case "reserve-connected":
-      if (callId) connectedReservations.add(callId);
-      break;
-    case "release-connected":
-      if (callId) connectedReservations.delete(callId);
-      break;
-
-    case "reserve-recording":
-      if (callId) recordingReservations.add(callId);
-      break;
-    case "release-recording":
-      if (callId) recordingReservations.delete(callId);
-      break;
-
-    case "reserve-voicemail":
-      if (callId) voicemailReservations.add(callId);
-      break;
-    case "release-voicemail":
-      if (callId) voicemailReservations.delete(callId);
-      break;
-
-    case "reserve-ended":
-      if (callId) endedReservations.add(callId);
-      break;
-    case "release-ended":
-      if (callId) endedReservations.delete(callId);
-      break;
-
-    default:
-      // ignore unrelated messages
-      break;
-  }
-};
-function acquireCrossTabLock(key, ttl = 1500) {
-  const now = Date.now();
-  const lock = localStorage.getItem(key);
-
-  if (lock) {
-    const { timestamp } = JSON.parse(lock);
-    if (now - timestamp < ttl) {
-      return false; // someone else owns lock
-    }
-  }
-
-  localStorage.setItem(
-    key,
-    JSON.stringify({ timestamp: now })
-  );
-
-  return true;
-}
-
-function releaseCrossTabLock(key) {
-  localStorage.removeItem(key);
-}
-function BOOT_RECORDING_GUARD_FIRED() {
-  return BOOT_RECORDING_GUARD_FIRED._fired === true;
-}
-function mark_boot_recording_guard() {
-  // mark fired and set a short TTL so only the very first burst is skipped
-  BOOT_RECORDING_GUARD_FIRED._fired = true;
-  setTimeout(() => {
-    BOOT_RECORDING_GUARD_FIRED._fired = false;
-  }, 2000);
-}
-bc.onmessage = (msg) => {
-  const { type, callId } = msg.data || {};
-
-  if (type === "reserve-calllog") {
-    calllogReservations.add(callId);
-  }
-
-  if (type === "release-calllog") {
-    calllogReservations.delete(callId);
-  }
-};
-
-///// Helpers
-function normalizeCallId(event) {
-  // Zoom event shapes vary; check multiple places
-  if (!event) return null;
-  return (
-    event?.data?.callId ||
-    event?.data?.data?.callId ||
-    event?.data?.data?.sessionId ||
-    event?.data?.sessionId ||
-    null
-  );
-}
-
-function ensureCallState(callId) {
-  if (!callId) return null;
-  if (!CALL_STATE.has(callId)) {
-    CALL_STATE.set(callId, {
-      ended: false,
-      voicemail: false,
-      recording: false,
-      connected: false,
-      ringing: false,
-    });
-  }
-  return CALL_STATE.get(callId);
-}
-
-function reserveOnce(setRef, callId, reserveType) {
-  // returns true if we successfully reserved (meaning we should process)
-  // returns false if reservation already exists (skip processing)
-  if (!callId) return true; // when callId missing, fall back to time-based dedupe elsewhere
-  if (setRef.has(callId)) return false;
-  setRef.add(callId);
-  bc.postMessage({ type: `reserve-${reserveType}`, callId });
-
-  // auto-release after TTL
-  setTimeout(() => {
-    setRef.delete(callId);
-    bc.postMessage({ type: `release-${reserveType}`, callId });
-  }, RESERVE_TTL_MS);
-
-  return true;
-}
-
-///// Per-event small time guards (fallback when callId missing)
-const lastTimes = {
-  recording: 0,
-  ringing: 0,
-  voicemail: 0,
-  ended: 0,
-};
-
-///// Public unified processor (call from your window.message handler)
-async function processZoomEvent(client, rawEvent) {
-  // Guard non-Zoom messages
-  const type = rawEvent?.data?.type;
-  if (!type || !type.startsWith("zp-")) return;
-
-  // Normalize callId
-  const callId = normalizeCallId(rawEvent);
-  // For debugging:
-  // console.log("Zoom event:", type, "callId:", callId, rawEvent);
-
-  // Simple switch; each case uses the same pattern:
-  // 1) ensure state
-  // 2) local state-machine dedupe
-  // 3) cross-tab reservation (reserveOnce)
-  // 4) process once
-  // 5) mark state
-
-}
 export default {
   components: {
     HomePage,
@@ -259,6 +61,7 @@ export default {
     CreateTicket,
     AddNotes,
     CrmConnect,
+    AddContact
   },
   data() {
     return {
@@ -271,7 +74,7 @@ export default {
 
   methods: {
     ...mapMutations(["setContactList"]),
-  async simulateIncomingCall() {
+     async simulateIncomingCall() {
       // // const data=  await window.client.request.invoke("getAccountId",{});
       // // const accountDetails=JSON.parse(data.message);
       // // console.log("Account ID:", accountDetails.account_id);
@@ -410,6 +213,17 @@ export default {
   },
 
   async mounted() {
+    window.addEventListener("storage", () => {
+  const info = JSON.parse(localStorage.getItem("zoom_tab_leader"));
+  if (!info) return;
+
+  // If this tab is NOT the leader → switch to fallback
+  if (info.token !== window.__leaderToken) {
+    console.log("Switching to  follower mode…");
+    window.location.reload();
+  }
+});
+
     const resp= await window.client.request.invoke("fetchCallLogs",{})
   this.$store.commit("callLogs/SET_CALL_LOGS",JSON?.parse(resp.message));
   console.log("call logs from app.vue",resp.message);
@@ -515,32 +329,25 @@ console.log('Detected environment:', getEmbeddedEnvironment());
       const { type } = event.data || {};
      
       if (type === "zp-call-ringing-event") {
-        const callId = event.data?.data?.callId;  
+        
+        const callId = event.data?.data?.callId; 
+        window.client.interface.trigger("show", { id: location !== "left_nav_cti" ? "softphone" : "phoneApp" });
+          // console.log("Incoming call event received",flag);
+        console.log("call is ringing");
+        this.$store.dispatch("call/setCallEndedFlag", false);
+   
          if (event.data.data.direction == 'inbound') {
               console.log('inbound call')
               this.showIncomingCall = true;
             }
+    
+        handleRingingEvent(client, event.data); 
+        
              const context = await client.instance.context();
       console.log("Current location:jh", context.location);
       const location = context.location;
 
-        client.interface.trigger("show", { id: location !== "left_nav_cti" ? "softphone" : "phoneApp" });
-          // console.log("Incoming call event received",flag);
-        console.log("call is ringing");
-        this.$store.dispatch("call/setCallEndedFlag", false);
-        const now = Date.now();
-      if (now - lastTimes.ringing < 150) {
-        // block micro-bursts
-        // console.log("Blocked ringing micro-burst");
-        return;
-      }
-      lastTimes.ringing = now;
-
-      const s = ensureCallState(callId);
-      if (s && s.ringing) return;
-      if (callId) s.ringing = true;
-        handleRingingEvent(client, event.data);
-    
+        
         
        
         console.log("event data", event.data);
@@ -551,55 +358,7 @@ console.log('Detected environment:', getEmbeddedEnvironment());
       }
     if (type === "zp-call-log-completed-event") {
   const callId = event.data?.data?.callId;
-  if (!callId) {
-    console.warn("❌ Missing callId in log-completed event");
-    return;
-  }
-
-  const lockKey = `call-log-completed-${callId}-lock`;
-
-  // ---------------------------------------------------------
-  // 1️⃣ CROSS-TAB LOCK (localStorage)
-  // ---------------------------------------------------------
-  if (!acquireCrossTabLock(lockKey, 1800)) {
-    console.log("⛔ Duplicate call-log-completed blocked (cross-tab lock):", callId);
-    return;
-  }
-
-  // Auto release for safety
-  setTimeout(() => {
-    releaseCrossTabLock(lockKey);
-    bc.postMessage({ type: "release-calllog", callId });
-  }, 1800);
-
-  // ---------------------------------------------------------
-  // 2️⃣ PER-TAB MUTEX (fast double firing prevention)
-  // ---------------------------------------------------------
-  if (callLogProcessingLock) {
-    console.log("⛔ Duplicate log-completed blocked (tab mutex)", callId);
-    return;
-  }
-
-  callLogProcessingLock = true;
-  setTimeout(() => {
-    callLogProcessingLock = false;
-  }, 50);
-
-  // ---------------------------------------------------------
-  // 3️⃣ RESERVATION SYSTEM (cross-tab instant dedupe)
-  // ---------------------------------------------------------
-  if (calllogReservations.has(callId)) {
-    console.log("⛔ Blocked duplicate log-completed via reservation:", callId);
-    return;
-  }
-
-  calllogReservations.add(callId);
-  bc.postMessage({ type: "reserve-calllog", callId });
-
-  // ---------------------------------------------------------
-  // 4️⃣ PROCESS EVENT EXACTLY ONCE
-  // ---------------------------------------------------------
-  console.log("✅ Handling log-completed ONCE for:", callId);
+  // 
 
   try {
     handleRingingEvent(client, event.data);
@@ -635,43 +394,15 @@ console.log('Detected environment:', getEmbeddedEnvironment());
         // console.error("Error fetching current product:", err);
       }
          const callId = event.data.data.callId;
-     
- handleZoomEventOnce(event, "connected", () => {
-    handleRingingEvent(client, event.data);
-  });
-        
-        
-       
-        console.log("call is connected app.vue");
-      
-     
-        //  const conversationId= this.$store.dispatch("call/createConversationFreshchat",event.data);
-        //  this.$store.commit("SET_CONVERSATION_ID", conversationId.conversation_id);
+    handleRingingEvent(client, event.data);  
     }
   if (type === "zp-call-ended-event") {
+    this.$store.commit("call/SET_CONTACT_NAME", "")
     const callId = event.data?.data?.callId;
             this.showIncomingCall = false;
         this.$store.commit("common/SET_PAGE_ROUTE", "home");
-        
-  
-
-    console.log("📞 Call Ended Event:", callId);
-
-    // ---------------------------------------------------------
-    // 1️⃣ LEADER LOCK (cross-tab dedupe)
-    // ---------------------------------------------------------
-
-   
-     handleRingingEvent(client, event.data);
-
     
-  
-
-       
-    
-
-  
-    
+     handleRingingEvent(client, event.data); 
 
   }
 
@@ -682,13 +413,10 @@ console.log('Detected environment:', getEmbeddedEnvironment());
   console.log("Call recording completed:", event.data);
 
   const callId = event.data.data.callId;
-  console.log("call id in app.vue", callId);
-
- 
-           handleZoomEventOnce(event, "recording", () => {
+  
      handleRingingEvent(client, event.data);
-  });
-         
+  
+    
           console.log("Recording with flag true");
          
         // handleRingingEvent(client, event.data);
@@ -696,42 +424,36 @@ console.log('Detected environment:', getEmbeddedEnvironment());
         if (recordingUrl) {
           // Save recording in Vuex
           this.$store.dispatch("call/setRecordingUrl", recordingUrl);
-          console.log("Recording URL stored:", recordingUrl);
-
-          // Update Freshchat with recording bubble
-          // const recordingPayload = {
-          //   conversationId: this.$store.getters.freshchat_conversation_id,
-          //   channel_id: this.$store.getters.freshchat_channel_id,
-          //   call_id: event.data.callId,
-          //   recording_link: recordingUrl,
-          //   call_life_cycle_event_type: "CALL_RECORDING_AVAILABLE",
-          // };
-
-          // client.request
-          //   .invoke("updateRecordingsInFreshChatConvo", recordingPayload)
-          //   .then((res) =>
-          //     console.log("Recording bubble added to Freshchat", res)
-          //   )
-          //   .catch((err) =>
-          //     console.error("Error updating Freshchat with recording:", err)
-          //   );
+          console.log("Recording URL stored:", recordingUrl);       
         }
         
         // optional: this.$store.commit("common/SET_PAGE_ROUTE", "call");
-  }
+    }
 
     if (type === "zp-notes-save-event") {
-        console.log("Notes event");
-        addNotes(event.data);
+        console.log("Notes event",event.data);
+        // addNotes(event.data);
+         const disposition = event.data.data.notesData.Disposition
+      ? event.data.data.notesData.Disposition
+      : "no Disposition";
+
+        const callNotes = "Disposition: " + disposition + "\n" + event.data?.data?.notesData.Description;
+        console.log("Saving call notes:", callNotes);
+      const contactId = this.$store.getters.crm_contact_id.contact.id;
+      console.log("Associated contact ID:", contactId);
+      // You can dispatch Vuex action or API call here
+      if(event.data?.data?.notesData.Description!=undefined && event.data?.data?.notesData.Description!=""){
+        window.client.request.invoke("saveCallNotes", { notes:callNotes, contactId:contactId})
       }
+      else{
+        console.log("No notes to save.");
+      
+      }
+    }
 if (type === "zp-call-voicemail-received-event") {
     const callId = event.data?.data?.callId;
-    if (!callId) return;
-
-    handleZoomEventOnce(event, "voicemail", () => {
-    handleRingingEvent(client, event.data);
-  });
-     
+    handleRingingEvent(client,event.data)
+  
 }
 
     if (event.data.iFrameEventType === "IST_IFRAME_STOP_NOTIFY") {

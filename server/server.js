@@ -330,6 +330,7 @@ exports = {
         finalData = workData; // override with work_number results
       }
     }
+   
     console.log("[CRM_CONTACT] Final search data:", finalData);
       if (finalData.contacts && finalData.contacts.length) {
         // console.log("[CRM_CONTACT] Found contact:", finalData.contacts[0]);

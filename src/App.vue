@@ -74,129 +74,129 @@ export default {
 
   methods: {
     ...mapMutations(["setContactList"]),
-     async simulateIncomingCall() {
-      // // const data=  await window.client.request.invoke("getAccountId",{});
-      // // const accountDetails=JSON.parse(data.message);
-      // // console.log("Account ID:", accountDetails.account_id);
-      //  this.$store.dispatch("common/getAccountId");
-      window.postMessage({
-        type: "zp-call-ringing-event",
-        data: {
-          callId: callIdValue,
-          callee: {
-            extensionId: "xA8mgzDBTX2UePf-8-n19w",
-            extensionNumber: "800",
-            extensionType: "user",
-            name: "hulk",
-            phoneNumber: "123456",
-          },
-          caller: {
-           name: "john doe",
-            number: "+89293829",
-            numberType: 2,
-          },
-          dateTime: "2025-08-1T09:58:51Z",
-          direction: direction,
-          enableAutoLog: false,
-        },
-      });
-    },
-    CONNECTED() {
-      window.postMessage({
-        type: "zp-call-connected-event",
-        data: {
-          callId: callIdValue,
-          callee: {
-            extensionId: "xA8mgzDBTX2UePf-8-n19w",
-            extensionNumber: "800",
-            extensionType: "user",
-            name: "hulk",
-            phoneNumber: "123456",
-          },
-          caller: {
-           name: "john doe",
-            number: "+89293829",
-            numberType: 2,
-          },
-          dateTime: "2025-08-1T09:58:51Z",
-          direction: direction,
-          enableAutoLog: false,
-        },
-      });
-    },
-    RECORDING() {
-      window.postMessage({
-        type: "zp-call-recording-completed-event",
-        data: {
-          callId: callIdValue,
-          callee: {
-            extensionId: "xA8mgzDBTX2UePf-8-n19w",
-            extensionNumber: "800",
-            extensionType: "user",
-            name: "hulk",
-            phoneNumber: "123456",
-          },
-          caller: {
-         name: "800 Service",
-            number: "+654321",
-            numberType: 2,
-          },
-          dateTime: "2025-08-1T09:58:51Z",
-          direction: direction,
-          recordingUrl:
-            "https://applications.zoom.us/integration/phone/embeddablephone/audio/play/0/bbf5c62b-0953-40e4-bbc9-6d565200a7e7",
-          enableAutoLog: false,
-        },
-      });
-    },
-    MISSED() {
-      window.postMessage({
-        type: "zp-call-ended-event",
-        data: {
-          callId: callIdValue,
-          callee: {
-            extensionId: "xA8mgzDBTX2UePf-8-n19w",
-            extensionNumber: "800",
-            extensionType: "user",
-            name: "hulk",
-            phoneNumber: "123456",
-          },
-          caller: {
-            name: "800 Service",
-            number: "+654321",
-            numberType: 2,
-          },
-          dateTime: "2025-08-1T09:58:51Z",
-          direction: direction,
-          enableAutoLog: false,
-          result: "missed",
-        },
-      });
-    },
-    ENDED() {
-      window.postMessage({
-        type: "zp-call-ended-event",
-        data: {
-          callId: callIdValue,
-         callee: {
-            extensionId: "xA8mgzDBTX2UePf-8-n19w",
-            extensionNumber: "800",
-            extensionType: "user",
-            name: "hulk",
-            phoneNumber: "123456",
-          },
-          caller: {
-         name: "800 Service",
-            number: "+654321",
-            numberType: 2,
-          },
-          dateTime: "2025-08-1T09:58:51Z",
-          direction: direction,
-          enableAutoLog: false,
-          result: "ended",
-        },
-      });
-    },
+    //  async simulateIncomingCall() {
+    //   // // const data=  await window.client.request.invoke("getAccountId",{});
+    //   // // const accountDetails=JSON.parse(data.message);
+    //   // // console.log("Account ID:", accountDetails.account_id);
+    //   //  this.$store.dispatch("common/getAccountId");
+    //   window.postMessage({
+    //     type: "zp-call-ringing-event",
+    //     data: {
+    //       callId: callIdValue,
+    //       callee: {
+    //         extensionId: "xA8mgzDBTX2UePf-8-n19w",
+    //         extensionNumber: "800",
+    //         extensionType: "user",
+    //         name: "hulk",
+    //         phoneNumber: "123456",
+    //       },
+    //       caller: {
+    //        name: "john doe",
+    //         number: "+89293829",
+    //         numberType: 2,
+    //       },
+    //       dateTime: "2025-08-1T09:58:51Z",
+    //       direction: direction,
+    //       enableAutoLog: false,
+    //     },
+    //   });
+    // },
+    // CONNECTED() {
+    //   window.postMessage({
+    //     type: "zp-call-connected-event",
+    //     data: {
+    //       callId: callIdValue,
+    //       callee: {
+    //         extensionId: "xA8mgzDBTX2UePf-8-n19w",
+    //         extensionNumber: "800",
+    //         extensionType: "user",
+    //         name: "hulk",
+    //         phoneNumber: "123456",
+    //       },
+    //       caller: {
+    //        name: "john doe",
+    //         number: "+89293829",
+    //         numberType: 2,
+    //       },
+    //       dateTime: "2025-08-1T09:58:51Z",
+    //       direction: direction,
+    //       enableAutoLog: false,
+    //     },
+    //   });
+    // },
+    // RECORDING() {
+    //   window.postMessage({
+    //     type: "zp-call-recording-completed-event",
+    //     data: {
+    //       callId: callIdValue,
+    //       callee: {
+    //         extensionId: "xA8mgzDBTX2UePf-8-n19w",
+    //         extensionNumber: "800",
+    //         extensionType: "user",
+    //         name: "hulk",
+    //         phoneNumber: "123456",
+    //       },
+    //       caller: {
+    //      name: "800 Service",
+    //         number: "+654321",
+    //         numberType: 2,
+    //       },
+    //       dateTime: "2025-08-1T09:58:51Z",
+    //       direction: direction,
+    //       recordingUrl:
+    //         "https://applications.zoom.us/integration/phone/embeddablephone/audio/play/0/bbf5c62b-0953-40e4-bbc9-6d565200a7e7",
+    //       enableAutoLog: false,
+    //     },
+    //   });
+    // },
+    // MISSED() {
+    //   window.postMessage({
+    //     type: "zp-call-ended-event",
+    //     data: {
+    //       callId: callIdValue,
+    //       callee: {
+    //         extensionId: "xA8mgzDBTX2UePf-8-n19w",
+    //         extensionNumber: "800",
+    //         extensionType: "user",
+    //         name: "hulk",
+    //         phoneNumber: "123456",
+    //       },
+    //       caller: {
+    //         name: "800 Service",
+    //         number: "+654321",
+    //         numberType: 2,
+    //       },
+    //       dateTime: "2025-08-1T09:58:51Z",
+    //       direction: direction,
+    //       enableAutoLog: false,
+    //       result: "missed",
+    //     },
+    //   });
+    // },
+    // ENDED() {
+    //   window.postMessage({
+    //     type: "zp-call-ended-event",
+    //     data: {
+    //       callId: callIdValue,
+    //      callee: {
+    //         extensionId: "xA8mgzDBTX2UePf-8-n19w",
+    //         extensionNumber: "800",
+    //         extensionType: "user",
+    //         name: "hulk",
+    //         phoneNumber: "123456",
+    //       },
+    //       caller: {
+    //      name: "800 Service",
+    //         number: "+654321",
+    //         numberType: 2,
+    //       },
+    //       dateTime: "2025-08-1T09:58:51Z",
+    //       direction: direction,
+    //       enableAutoLog: false,
+    //       result: "ended",
+    //     },
+    //   });
+    // },
    
     hideCallPopup() {
       this.showIncomingCall = false;
@@ -329,7 +329,10 @@ console.log('Detected environment:', getEmbeddedEnvironment());
       const { type } = event.data || {};
      
       if (type === "zp-call-ringing-event") {
-        
+          
+             const context = await client.instance.context();
+      console.log("Current location:jh", context.location);
+      const location = context.location;
         const callId = event.data?.data?.callId; 
         window.client.interface.trigger("show", { id: location !== "left_nav_cti" ? "softphone" : "phoneApp" });
           // console.log("Incoming call event received",flag);
@@ -342,10 +345,7 @@ console.log('Detected environment:', getEmbeddedEnvironment());
             }
     
         handleRingingEvent(client, event.data); 
-        
-             const context = await client.instance.context();
-      console.log("Current location:jh", context.location);
-      const location = context.location;
+      
 
         
         
